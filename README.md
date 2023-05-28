@@ -1,28 +1,26 @@
 # grpc-proxy
-Proxy between REST and gRPC service.
+Proxy REST to gRPC service.
 
-## Deploy
+## How to deploy
 
-First setup virtual environment and install dependencies:
+Setup virtual environment and install dependencies:
 ```
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r .\requirements.txt
 ```
 
-Start `server.py` that accepts gRPC traffic:
+Modify `app.proto` definitions to match definitions of your gRPC endpoint and recompile python stub. 
 ```
-python server.py
+python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. app.proto
 ```
 
-Start `proxy.py` that accepts REST traffic and forwards it to server via gRPC:
+In `proxy.py` modify `GRPC_SERVER` to point to your gRPC endpoint and `GRPC_METHOD_MAPPINGS` to match mapping between gRPC methods and request messages. 
+
+Start `proxy.py` app.
 ```
 python proxy.py
 ```
 
-## Recompile proto schema
-
-Modify `app.proto` and run following command. It will recreate `app_pb2.py` and `app_bp2_grpc.py`. Check if python code needs some fixes too.
-```
-python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. app.proto
-```
+## How to use
+Open browser and navigate to `http://localhost:8081/?method=X&payload_key1=value1&payload_key2=value2&metadata_key3=value3` and the proxy will send request to method `X` with `key1=value1 key2=value2` payload and `key3=value3` metadata.
